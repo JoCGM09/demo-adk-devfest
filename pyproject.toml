@@ -3,11 +3,11 @@ name = "deploy-and-manage-adk"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12, <3.13"
 dependencies = [
     "google-adk>=1.17.0",
     "locust==2.37.10",
-    "pg8000==1.31.2",
+    "asyncpg==0.29.0",
     "python-dotenv==1.1.0",
 ]
 
