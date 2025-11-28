@@ -1,29 +1,33 @@
-# 1. Usar Python 3.12 como base, ya que es compatible con asyncpg
+# 1. Base compatible con asyncpg (Python 3.12)
 FROM python:3.12-slim
-
-# Instala uv
-RUN pip install --no-cache-dir uv==0.7.13
 
 WORKDIR /app
 
 COPY . .
 
-# 2. INSTALAR HERRAMIENTAS DE COMPILACIÓN
-# Esto es esencial para compilar asyncpg y otros paquetes que usan extensiones C.
-# --no-install-recommends: reduce el tamaño de la imagen.
-# rm -rf /var/lib/apt/lists/*: limpia la caché de apt para reducir el tamaño de la capa.
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends build-essential postgresql-client && \
-    rm -rf /var/lib/apt/lists/*
+# 2. INSTALAR HERRAMIENTAS DE COMPILACIÓN y dependencias
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # gcc y herramientas para compilar C
+    build-essential \
+    gcc \
+    libffi-dev \
+    # Dependencias de compilación para asyncpg
+    libpq-dev \
+    python3-dev \
+    # Instalar uv de forma global, en lugar de dentro de un venv o cache
+    # Luego eliminamos la cache de apt
+    && pip install --no-cache-dir uv==0.7.13 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Opcional: crea el entorno virtual (.venv)
-RUN uv venv --seed
-
-# 3. Instala las dependencias en el venv (esto ahora encontrará 'cc')
-# Usamos `uv pip install .` para que lea tu pyproject.toml
-RUN uv pip install .
-
+# 3. CREAR E INSTALAR DEPENDENCIAS (Forzando el uso de Python 3.12)
+# Borramos el venv anterior (por si acaso) y forzamos a uv a usar el Python del sistema
+# Usamos `uv venv` para crear el .venv
+# Usamos `uv pip install` para instalar las dependencias
+# Esto debería usar el Python de la imagen base (3.12)
+RUN uv venv --seed && \
+    /app/.venv/bin/pip install .
+    
 EXPOSE 8080
 
-# 4. CMD: Ejecutar uvicorn desde el entorno virtual para asegurar el PATH
+# 4. CMD: Ejecutar uvicorn desde el entorno virtual 3.12
 CMD ["/app/.venv/bin/uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8080"]
