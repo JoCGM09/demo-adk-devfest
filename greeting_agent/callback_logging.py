@@ -14,7 +14,7 @@ def log_consulta_modelo(callback_context: CallbackContext, llm_request: LlmReque
     if llm_request.contents and llm_request.contents[-1].role == 'user':
         for part in llm_request.contents[-1].parts:
             if part.text:
-                logger.info(f"[Callback] Consulta al agente {agent_name}: {part.text}")
+                logger.log("INFO",f"[Callback] Consulta al agente {agent_name}: {part.text}")
 
 def log_respuesta_modelo(callback_context: CallbackContext, llm_response: LlmResponse) -> Optional[LlmResponse]:
     
@@ -26,19 +26,19 @@ def log_respuesta_modelo(callback_context: CallbackContext, llm_response: LlmRes
         function_response = getattr(first_part, "function_call", None)
 
         if agent_response:
-            logger.info(f"[Callback] Respuesta del agente {agent_name}: {agent_response}")
+            logger.log("INFO",f"[Callback] Respuesta del agente {agent_name}: {agent_response}")
         elif function_response:
             name = getattr(function_response, "name", str(function_response))
-            logger.info(f"[Callback] Llamada a la funcion del agente {agent_name}: {name}")
+            logger.log("INFO",f"[Callback] Llamada a la funcion del agente {agent_name}: {name}")
         else:
-            logger.info(f"[Callback] Respuesta del agente {agent_name} sin contenido reconocible.")
+            logger.log("INFO",f"[Callback] Respuesta del agente {agent_name} sin contenido reconocible.")
             return None
 
     elif getattr(llm_response, "error_message", None):
-        logger.error(f"[Callback] Error del agente {agent_name}: {llm_response.error_message}")
+        logger.log("INFO",f"[Callback] Error del agente {agent_name}: {llm_response.error_message}")
         return None
     else:
-        logger.info(f"[Callback] Respuesta del agente {agent_name} sin contenido.")
+        logger.log("INFO",f"[Callback] Respuesta del agente {agent_name} sin contenido.")
         return None
 
 
