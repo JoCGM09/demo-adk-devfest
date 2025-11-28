@@ -14,7 +14,9 @@ def log_consulta_modelo(callback_context: CallbackContext, llm_request: LlmReque
     if llm_request.contents and llm_request.contents[-1].role == 'user':
         for part in llm_request.contents[-1].parts:
             if part.text:
-                logger.log("INFO",f"[Callback] Consulta al agente {agent_name}: {part.text}")
+                # CORRECCIÓN para INFO
+                logger.log(f"[Callback] Consulta al agente {agent_name}: {part.text}", severity="INFO")
+
 
 def log_respuesta_modelo(callback_context: CallbackContext, llm_response: LlmResponse) -> Optional[LlmResponse]:
     
@@ -26,19 +28,19 @@ def log_respuesta_modelo(callback_context: CallbackContext, llm_response: LlmRes
         function_response = getattr(first_part, "function_call", None)
 
         if agent_response:
-            logger.log("INFO",f"[Callback] Respuesta del agente {agent_name}: {agent_response}")
+            logger.log(f"[Callback] Respuesta del agente {agent_name}: {agent_response}", severity="INFO")
         elif function_response:
             name = getattr(function_response, "name", str(function_response))
-            logger.log("INFO",f"[Callback] Llamada a la funcion del agente {agent_name}: {name}")
+            logger.log(f"[Callback] Llamada a la funcion del agente {agent_name}: {name}", severity="INFO")
         else:
-            logger.log("INFO",f"[Callback] Respuesta del agente {agent_name} sin contenido reconocible.")
+            logger.log(f"[Callback] Respuesta del agente {agent_name} sin contenido reconocible.", severity="INFO")
             return None
 
     elif getattr(llm_response, "error_message", None):
-        logger.log("INFO",f"[Callback] Error del agente {agent_name}: {llm_response.error_message}")
+        logger.log(f"[Callback] Error del agente {agent_name}: {llm_response.error_message}", severity="ERROR")
         return None
     else:
-        logger.log("INFO",f"[Callback] Respuesta del agente {agent_name} sin contenido.")
+        logger.log(f"[Callback] Respuesta del agente {agent_name} sin contenido.", severity="INFO")
         return None
 
 
